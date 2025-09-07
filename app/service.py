@@ -166,7 +166,7 @@ def features_near(db: Session, lat: float, lon: float, radius_m: int) -> List[Di
             "created_at": row.created_at.isoformat() if row.created_at else None,
             "updated_at": row.updated_at.isoformat() if row.updated_at else None,
             "buffer_area_m2": row.buffer_area_m2,
-            "distance_m": float(row.distance_m) if row.distance_m else None
+            "distance_m": float(row.distance_m) if row.distance_m is not None else 0.0
         }
         for row in results
     ]
