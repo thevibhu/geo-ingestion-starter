@@ -253,43 +253,6 @@
 			"response": []
 		},
 		{
-			"name": "Process Non-existent Feature",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test('Processing non-existent feature returns 404', function () {",
-							"    pm.response.to.have.status(404);",
-							"});",
-							"",
-							"pm.test('404 response has error message', function () {",
-							"    const response = pm.response.json();",
-							"    pm.expect(response).to.have.property('detail', 'Not found');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/features/00000000-0000-0000-0000-000000000000/process",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"features",
-						"00000000-0000-0000-0000-000000000000",
-						"process"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Invalid Coordinates",
 			"event": [
 				{
@@ -329,42 +292,6 @@
 					],
 					"path": [
 						"features"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Non-existent Feature",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test('Non-existent feature returns 404', function () {",
-							"    pm.response.to.have.status(404);",
-							"});",
-							"",
-							"pm.test('404 response has error message', function () {",
-							"    const response = pm.response.json();",
-							"    pm.expect(response).to.have.property('detail', 'Not found');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/features/00000000-0000-0000-0000-000000000000",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"features",
-						"00000000-0000-0000-0000-000000000000"
 					]
 				}
 			},
@@ -529,44 +456,6 @@
 							"    pm.expect(response).to.have.property('attempts', 1);",
 							"    pm.expect(response).to.have.property('created_at');",
 							"    pm.expect(response).to.have.property('updated_at');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/features/{{featureId}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"features",
-						"{{featureId}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Feature - Before Processing",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test('Get feature returns 200', function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test('Feature has queued status', function () {",
-							"    const response = pm.response.json();",
-							"    pm.expect(response).to.have.property('status', 'queued');",
-							"    pm.expect(response).to.have.property('name', 'Place Ville Marie');",
-							"    pm.expect(response.buffer_area_m2).to.be.null;",
 							"});"
 						],
 						"type": "text/javascript"

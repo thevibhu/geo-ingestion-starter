@@ -24,3 +24,11 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+
+  newman:
+    image: postman/newman:latest
+    volumes:
+      - ./postman:/etc/newman
+    command: run /etc/newman/geo-ingestion-api.postman_collection.json --env-var baseUrl=http://api:8000 --reporters cli
+    profiles:
+      - test
