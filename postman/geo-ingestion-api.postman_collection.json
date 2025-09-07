@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "600e6e09-9091-48ae-883d-f909f48ec224",
+		"name": "geo-ingestion-api",
+		"description": "Complete test suite for the PostGIS-powered geospatial feature processing API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11123282"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Health check returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Health check response format', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('status', 'ok');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/healthz",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"healthz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ready Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Ready check returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Ready check response format', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('status', 'ready');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/readyz",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"readyz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Feature - McGill",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Second feature creation returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Second feature returns valid UUID', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('id');",
+							"    ",
+							"    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;",
+							"    pm.expect(response.id).to.match(uuidRegex);",
+							"    ",
+							"    // Store second feature ID",
+							"    pm.collectionVariables.set('mcgillFeatureId', response.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"McGill University\",\n  \"lat\": 45.5048,\n  \"lon\": -73.5772\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/features",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Feature - Montreal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Feature creation returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Feature creation returns valid UUID', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('id');",
+							"    ",
+							"    // Validate UUID format",
+							"    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;",
+							"    pm.expect(response.id).to.match(uuidRegex);",
+							"    ",
+							"    // Store for subsequent requests",
+							"    pm.collectionVariables.set('featureId', response.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Place Ville Marie\",\n  \"lat\": {{montrealLat}},\n  \"lon\": {{montrealLon}}\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/features",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process Feature - Montreal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Feature processing returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Processing confirmation', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('processed', true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/{{featureId}}/process",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"{{featureId}}",
+						"process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process Feature - McGill",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('McGill processing returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('McGill processing confirmation', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('processed', true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/{{mcgillFeatureId}}/process",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"{{mcgillFeatureId}}",
+						"process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process Non-existent Feature",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Processing non-existent feature returns 404', function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test('404 response has error message', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('detail', 'Not found');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/00000000-0000-0000-0000-000000000000/process",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"00000000-0000-0000-0000-000000000000",
+						"process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid Coordinates",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Invalid coordinates return 422', function () {",
+							"    pm.response.to.have.status(422);",
+							"});",
+							"",
+							"pm.test('Validation error details provided', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('detail');",
+							"    pm.expect(response.detail).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Invalid Location\",\n  \"lat\": 91.0,\n  \"lon\": 181.0\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/features",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Non-existent Feature",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Non-existent feature returns 404', function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test('404 response has error message', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('detail', 'Not found');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/00000000-0000-0000-0000-000000000000",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"00000000-0000-0000-0000-000000000000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find Nearby Features - Wide Range",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Wide search returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Returns multiple features within 5km', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.be.an('array');",
+							"    pm.expect(response.length).to.be.greaterThan(1);",
+							"});",
+							"",
+							"pm.test('Features are sorted by distance', function () {",
+							"    const response = pm.response.json();",
+							"    if (response.length > 1) {",
+							"        for (let i = 1; i < response.length; i++) {",
+							"            pm.expect(response[i].distance_m).to.be.at.least(response[i-1].distance_m);",
+							"        }",
+							"    }",
+							"});",
+							"",
+							"pm.test('All features have required spatial data', function () {",
+							"    const response = pm.response.json();",
+							"    response.forEach(feature => {",
+							"        pm.expect(feature).to.have.property('id');",
+							"        pm.expect(feature).to.have.property('name');",
+							"        pm.expect(feature).to.have.property('distance_m');",
+							"        pm.expect(feature.distance_m).to.be.a('number');",
+							"        pm.expect(feature.distance_m).to.be.at.most(5000);",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/near?lat={{montrealLat}}&lon={{montrealLon}}&radius_m=5000",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"near"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "{{montrealLat}}"
+						},
+						{
+							"key": "lon",
+							"value": "{{montrealLon}}"
+						},
+						{
+							"key": "radius_m",
+							"value": "5000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find Nearby Features - Close Range",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Nearby search returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Returns array of features', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.be.an('array');",
+							"    pm.expect(response.length).to.be.greaterThan(0);",
+							"});",
+							"",
+							"pm.test('Contains our Montreal feature', function () {",
+							"    const response = pm.response.json();",
+							"    const featureId = pm.collectionVariables.get('featureId');",
+							"    ",
+							"    const ourFeature = response.find(f => f.id === featureId);",
+							"    pm.expect(ourFeature).to.not.be.undefined;",
+							"    pm.expect(ourFeature.name).to.equal('Place Ville Marie');",
+							"    pm.expect(ourFeature.distance_m).to.be.lessThan(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/near?lat={{montrealLat}}&lon={{montrealLon}}&radius_m=1000",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"near"
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "{{montrealLat}}"
+						},
+						{
+							"key": "lon",
+							"value": "{{montrealLon}}"
+						},
+						{
+							"key": "radius_m",
+							"value": "1000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Processed Feature",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Processed feature returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Feature has done status and calculated area', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('status', 'done');",
+							"    pm.expect(response).to.have.property('buffer_area_m2');",
+							"    ",
+							"    // 500m radius circle should be ~785,398 m²",
+							"    pm.expect(response.buffer_area_m2).to.be.greaterThan(700000);",
+							"    pm.expect(response.buffer_area_m2).to.be.lessThan(800000);",
+							"});",
+							"",
+							"pm.test('Feature metadata is correct', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('name', 'Place Ville Marie');",
+							"    pm.expect(response).to.have.property('attempts', 1);",
+							"    pm.expect(response).to.have.property('created_at');",
+							"    pm.expect(response).to.have.property('updated_at');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/{{featureId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"{{featureId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Feature - Before Processing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Get feature returns 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Feature has queued status', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('status', 'queued');",
+							"    pm.expect(response).to.have.property('name', 'Place Ville Marie');",
+							"    pm.expect(response.buffer_area_m2).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/features/{{featureId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"features",
+						"{{featureId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "featureId",
+			"value": ""
+		},
+		{
+			"key": "montrealLat",
+			"value": "45.5017"
+		},
+		{
+			"key": "montrealLon",
+			"value": "-73.5673"
+		},
+		{
+			"key": "mcgillFeatureId",
+			"value": ""
+		}
+	]
+}
